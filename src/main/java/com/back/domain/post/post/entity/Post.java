@@ -1,8 +1,10 @@
 package com.back.domain.post.post.entity;
 
+import com.back.domain.member.member.entity.Member;
 import com.back.domain.post.postComment.entity.PostComment;
 import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +21,8 @@ import static jakarta.persistence.FetchType.LAZY;
 @Getter
 @Entity
 public class Post extends BaseEntity {
+    @ManyToOne
+    private Member author;
     private String title;
     private  String content;
 
@@ -32,7 +36,8 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", fetch = LAZY, cascade = {PERSIST, REMOVE}, orphanRemoval = true)
     private List<PostComment> comments = new ArrayList<>();
 
-    public Post(String title, String content) {
+    public Post(Member author, String title, String content) {
+        this.author = author;
         this.title = title;
         this.content = content;
     }
@@ -48,8 +53,8 @@ public class Post extends BaseEntity {
      * - comments.add(...) 로 부모 컬렉션에 포함
      * - 이후 부모를 저장하면 cascade=PERSIST 덕분에 자식도 자동 INSERT
      */
-    public PostComment addComment(String content) {
-        PostComment postComment = new PostComment(this, content);
+    public PostComment addComment(Member author, String content) {
+        PostComment postComment = new PostComment(author, this, content);
         comments.add(postComment);
 
         return postComment;

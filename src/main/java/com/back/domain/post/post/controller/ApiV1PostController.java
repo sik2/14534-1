@@ -1,5 +1,7 @@
 package com.back.domain.post.post.controller;
 
+import com.back.domain.member.member.entity.Member;
+import com.back.domain.member.member.service.MemberService;
 import com.back.domain.post.post.dto.PostDto;
 import com.back.domain.post.post.dto.PostModifyReqBody;
 import com.back.domain.post.post.dto.PostWriteReqBody;
@@ -21,6 +23,7 @@ import java.util.List;
 @Tag(name="ApiV1PostController", description = "API 글 컨트롤러")
 public class ApiV1PostController {
     private final PostService postService;
+    private final MemberService memberService;
 
     @Transactional(readOnly = true)
     @GetMapping
@@ -58,8 +61,8 @@ public class ApiV1PostController {
     @Transactional
     @Operation(summary = "작성")
     public RsData<PostDto> write(@Valid @RequestBody PostWriteReqBody reqBody) {
-        Post post = postService.create(reqBody.title(), reqBody.content());
-
+        Member author = memberService.findByUsername("user1").get();
+        Post post = postService.create(author, reqBody.title(), reqBody.content());
 
         return new RsData<>(
                         "201-1",
