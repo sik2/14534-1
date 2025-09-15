@@ -7,6 +7,7 @@ import com.back.domain.post.post.dto.PostModifyReqBody;
 import com.back.domain.post.post.dto.PostWriteReqBody;
 import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
+import com.back.global.exception.ServiceException;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -69,10 +70,11 @@ public class ApiV1PostController {
             @NotBlank @Size(min = 2, max = 30) String username,
             @NotBlank @Size(min = 2, max = 30) String password
     ) {
-        Member author = memberService.findByUsername(username).get();
+        Member author = memberService.findByUsername(username)
+                .orElseThrow(() -> new ServiceException("401-1", "존재하지 않는 회원입니다."));
 
         if (!author.getPassword().equals(password)) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다");
+            throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다");
         }
 
         Post post = postService.create(author, reqBody.title(), reqBody.content());
