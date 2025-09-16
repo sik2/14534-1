@@ -100,10 +100,14 @@ public class ApiV1PostCommentControllerTest {
         long postId = 1;
         long id = 1;
 
+        Post beforePost = postService.findById(postId);
+        String apiKey = beforePost.getAuthor().getApiKey();
+
         //요청을 보냅니다.
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/v1/posts/%d/comments/%d".formatted(postId, id))
+                        .header("Authorization", "Bearer " + apiKey)
                 )
                 .andDo(print()); // 응답을 출력합니다.
 

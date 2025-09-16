@@ -66,6 +66,10 @@ public class ApiV1PostController {
 
         Post post = postService.findById(id);
 
+        if (!author.equals(post.getAuthor())) {
+            throw new ServiceException("403-1", "글 삭제 권한이 없습니다.");
+        }
+
         postService.delete(post);
 
         return new RsData<>("200-1", "%d번 게시글이 삭제되었습니다.".formatted(id), new PostDto(post));
