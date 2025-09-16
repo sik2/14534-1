@@ -87,11 +87,9 @@ public class ApiV1PostController {
             @Valid @RequestBody PostWriteReqBody reqBody,
             @NotBlank @Size(min = 2, max = 50) @RequestHeader("Authorization") String authorization
     ) {
-        String apiKey = authorization.replace("Bearer ", "");
+        System.out.println("rq.getActor: " + rq.getActor());
 
-        Member author = memberService.findByApiKey(apiKey)
-                .orElseThrow(() -> new ServiceException("401-1", "존재하지 않는 회원입니다."));
-
+        Member author = rq.getActor();
         Post post = postService.create(author, reqBody.title(), reqBody.content());
 
         return new RsData<>(
