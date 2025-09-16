@@ -151,11 +151,15 @@ public class ApiV1PostCommentControllerTest {
     void t5() throws Exception {
         long postId = 1;
 
+        Post beforePost = postService.findById(postId);
+        String apiKey = beforePost.getAuthor().getApiKey();
+
         //요청을 보냅니다.
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts/%d/comments".formatted(postId))
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + apiKey)
                                 .content("""
                                         {
                                             "content": "내용 new"
