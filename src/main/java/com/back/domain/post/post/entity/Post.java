@@ -94,7 +94,7 @@ public class Post extends BaseEntity {
 
     public void checkActorCanDelete(Member actor) {
         if (!actor.equals(author)) {
-            throw new ServiceException("403-1", "글 수정 권한이 없습니다.");
+            throw new ServiceException("403-1", "%d번 글 수정 권한이 없습니다.".formatted(getId()));
         }
     }
 }
