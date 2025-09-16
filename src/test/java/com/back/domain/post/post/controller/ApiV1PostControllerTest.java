@@ -206,6 +206,59 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.msg").value("로그인 후 사용해주세요."));
     }
 
+    @Test
+    @DisplayName("글 쓰기, 잘못된 authorization header")
+    void t11() throws Exception {
+        //요청을 보냅니다.
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/api/v1/posts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "wrong-api-key")
+                                .content("""
+                                        {
+                                            "title": "제목",
+                                            "content": "내용"
+                                        }
+                                        """)
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("write"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("401-2"))
+                .andExpect(jsonPath("$.msg").value("인증 정보가 올바르지 않습니다."));
+    }
+
+
+    @Test
+    @DisplayName("글 쓰기, 잘못된 authorization header")
+    void t12() throws Exception {
+        //요청을 보냅니다.
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/api/v1/posts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer wrong-api-key")
+                                .content("""
+                                        {
+                                            "title": "제목",
+                                            "content": "내용"
+                                        }
+                                        """)
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("write"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("401-3"))
+                .andExpect(jsonPath("$.msg").value("회원을 찾을 수 없습니다."));
+    }
+
     //글 수정 테스트
     @Test
     @DisplayName("글 수정")
