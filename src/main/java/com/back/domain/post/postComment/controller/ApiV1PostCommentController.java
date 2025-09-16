@@ -9,7 +9,6 @@ import com.back.domain.post.postComment.dto.PostCommentModifyReqBody;
 import com.back.domain.post.postComment.dto.PostCommentWriteReqBody;
 import com.back.domain.post.postComment.entity.PostComment;
 import com.back.global.Rq.Rq;
-import com.back.global.exception.ServiceException;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -71,9 +70,7 @@ public class ApiV1PostCommentController {
 
         PostComment postComment = post.findCommentById(id).get();
 
-        if (!actor.equals(postComment.getAuthor())) {
-            throw new ServiceException("403-1", "댓글 삭제 권한이 없습니다.");
-        }
+        postComment.checkActorCanDelete(actor);
 
         postService.deleteComment(post, postComment);
 
@@ -94,9 +91,7 @@ public class ApiV1PostCommentController {
 
           PostComment postComment = post.findCommentById(id).get();
 
-          if (!actor.equals(postComment.getAuthor())) {
-                throw new ServiceException("403-1", "댓글 수정 권한이 없습니다.");
-          }
+        postComment.checkActorCanModify(actor);
 
           postService.modifyComment(postComment, reqBody.content());
 
