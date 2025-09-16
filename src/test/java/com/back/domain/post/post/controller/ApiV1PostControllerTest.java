@@ -356,6 +356,33 @@ public class ApiV1PostControllerTest {
     }
 
     @Test
+    @DisplayName("글 삭제, without permission")
+    void t14() throws Exception {
+        long id = 1;
+
+        Member author = memberService.findByUsername("user2").get();
+
+        String apiKey = author.getApiKey();
+
+        //요청을 보냅니다.
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/v1/posts/" + id)
+                                .header("Authorization", "Bearer " + apiKey)
+                )
+
+                .andDo(print()); // 응답을 출력합니다.
+
+        // 200 Ok 상태코드 검증
+        resultActions
+                .andExpect(status().isForbidden())
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("delete"))
+                .andExpect(jsonPath("$.resultCode").value("403-1"))
+                .andExpect(jsonPath("$.msg").value("%d번 글 삭제 권한이 없습니다.".formatted(id)));
+    }
+
+    @Test
     @DisplayName("글 단건조회")
     void t4() throws Exception {
         long id = 1;
