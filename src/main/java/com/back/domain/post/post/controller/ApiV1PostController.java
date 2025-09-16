@@ -1,7 +1,6 @@
 package com.back.domain.post.post.controller;
 
 import com.back.domain.member.member.entity.Member;
-import com.back.domain.member.member.service.MemberService;
 import com.back.domain.post.post.dto.PostDto;
 import com.back.domain.post.post.dto.PostModifyReqBody;
 import com.back.domain.post.post.dto.PostWriteReqBody;
@@ -25,15 +24,12 @@ import java.util.List;
 @Tag(name="ApiV1PostController", description = "API 글 컨트롤러")
 public class ApiV1PostController {
     private final PostService postService;
-    private final MemberService memberService;
     private final Rq rq;
 
     @Transactional(readOnly = true)
     @GetMapping
     @Operation(summary = "다건 조회")
     public List<PostDto> getItems() {
-        System.out.println("memberService : " + memberService);
-        System.out.println("rq : " + rq);
 
         List<Post> items = postService.getList();
 
