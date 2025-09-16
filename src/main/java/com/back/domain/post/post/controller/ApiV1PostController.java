@@ -7,6 +7,7 @@ import com.back.domain.post.post.dto.PostModifyReqBody;
 import com.back.domain.post.post.dto.PostWriteReqBody;
 import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
+import com.back.global.Rq.Rq;
 import com.back.global.exception.ServiceException;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,11 +30,15 @@ import java.util.List;
 public class ApiV1PostController {
     private final PostService postService;
     private final MemberService memberService;
+    private final Rq rq;
 
     @Transactional(readOnly = true)
     @GetMapping
     @Operation(summary = "다건 조회")
     public List<PostDto> getItems() {
+        System.out.println("memberService : " + memberService);
+        System.out.println("rq : " + rq);
+
         List<Post> items = postService.getList();
 
         return items
