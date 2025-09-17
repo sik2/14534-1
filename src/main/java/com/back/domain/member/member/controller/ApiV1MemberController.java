@@ -10,6 +10,8 @@ import com.back.global.Rq.Rq;
 import com.back.global.exception.ServiceException;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -64,6 +66,22 @@ public class ApiV1MemberController {
                 "200-1",
                 "%s님 정보입니다.".formatted(actor.getNickname()),
                 new MemberDto(actor)
+        );
+    }
+
+    @DeleteMapping("/logout")
+    public RsData<Void> logout(HttpServletResponse response) {
+
+        Cookie cookie  = new Cookie("apiKey", "");
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+
+        response.addCookie(cookie);
+
+        return new RsData<>(
+                "200-1",
+                "로그아웃 되었습니다."
         );
     }
 }
