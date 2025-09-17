@@ -22,11 +22,12 @@ public class Rq {
     private final MemberService memberService;
 
     public Member getActor() {
-        String headerAuthorization =  req.getHeader("Authorization");
+        String headerAuthorization = getHeader("Authorization", "");
+
         String apiKey;
 
         // headerAuthorization이 존재한다면
-        if (headerAuthorization != null && !headerAuthorization.isBlank()) {
+        if (!headerAuthorization.isBlank()) {
             if (headerAuthorization.startsWith("Bearer ")) {
                 throw new ServiceException("401-2", "인증 정보가 올바르지 않습니다.");
             }
@@ -44,6 +45,13 @@ public class Rq {
                 .orElseThrow(() -> new ServiceException("401-3", "회원을 찾을 수 없습니다."));
 
         return member;
+    }
+
+    private String getHeader(String name, String defaultValue) {
+        return Optional
+                        .ofNullable(req.getHeader("Authorization"))
+                        .filter(headerValue -> !headerValue.isBlank())
+                        .orElse(defaultValue);
     }
 
     private String getCookieValue(String name, String defaultValue) {
