@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Component
 @RequiredArgsConstructor
 public class Rq {
@@ -20,16 +22,27 @@ public class Rq {
 
     public Member getActor() {
         String headerAuthorization =  req.getHeader("Authorization");
+        String apiKey;
 
-        if (headerAuthorization == null || headerAuthorization.isBlank()) {
+        // headerAuthorization이 존재한다면
+        if (headerAuthorization != null && !headerAuthorization.isBlank()) {
+            if (headerAuthorization.startsWith("Bearer ")) {
+                throw new ServiceException("401-2", "인증 정보가 올바르지 않습니다.");
+            }
+
+            apiKey = headerAuthorization.substring("Bearer ".length()).trim();
+        } else { // headerAuthorization 존재하지 않는다면 쿠키에서 apiKey를 가지고 오기
+            apiKey = req.getCookies() == null ?
+                    "" :
+                    Arrays.stream(req.getCookies())
+                            .filter(cookie -> "apiKey".equals(cookie.getName()))
+                            .map(Cookie::getValue)
+                            .findFirst().orElse("");
+        }
+
+        if (apiKey.isBlank()) {
             throw new ServiceException("401-1", "로그인 후 사용해주세요.");
         }
-
-        if (!headerAuthorization.startsWith("Bearer ")) {
-            throw new ServiceException("401-2", "인증 정보가 올바르지 않습니다.");
-        }
-
-        String apiKey = headerAuthorization.substring("Bearer ".length()).trim();
 
         Member member = memberService
                 .findByApiKey(apiKey)
