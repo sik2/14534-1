@@ -64,14 +64,7 @@ public class AuthTokenServiceTest {
 
         System.out.println("jwt : " + jwt);
 
-        Map<String, Object> parsePayload = (Map<String, Object>) Jwts
-                .parser()
-                .verifyWith(secretKey)
-                .build()
-                .parse(jwt)
-                .getPayload();
-
-        assertThat(parsePayload).containsAllEntriesOf(claims);
+        assertThat(Ut.jwt.isValid(secret, jwt)).isTrue();
     }
 
     @Test
