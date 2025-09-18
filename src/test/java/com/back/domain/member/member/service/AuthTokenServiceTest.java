@@ -1,5 +1,6 @@
 package com.back.domain.member.member.service;
 
+import com.back.standard.util.Ut;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.DisplayName;
@@ -51,6 +52,24 @@ public class AuthTokenServiceTest {
                 .expiration(expiration) // 만료날짜
                 .signWith(secretKey) // 키 서명
                 .compact();
+
+        assertThat(jwt).isNotBlank();
+
+        System.out.println("jwt : " + jwt);
+    }
+
+    @Test
+    @DisplayName("Ut.jwt.toString 통해서 jwt 생성, {name= \"Paul\", age=23}")
+    void t3 () {
+        String secret = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
+        int expireSeconds = 1000 * 60 * 60 * 24 * 365; // 토큰 만료시간을 1년
+        Map<String, Object> claims = Map.of("name", "David", "age", "20");
+
+        String jwt = Ut.jwt.toString(
+                secret,
+                expireSeconds,
+                claims
+        );
 
         assertThat(jwt).isNotBlank();
 
