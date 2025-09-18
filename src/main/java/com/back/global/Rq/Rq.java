@@ -28,7 +28,7 @@ public class Rq {
 
         // headerAuthorization이 존재한다면
         if (!headerAuthorization.isBlank()) {
-            if (headerAuthorization.startsWith("Bearer ")) {
+            if (!headerAuthorization.startsWith("Bearer ")) {
                 throw new ServiceException("401-2", "인증 정보가 올바르지 않습니다.");
             }
 

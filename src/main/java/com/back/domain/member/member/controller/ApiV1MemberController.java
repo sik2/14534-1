@@ -9,6 +9,7 @@ import com.back.domain.member.member.service.MemberService;
 import com.back.global.Rq.Rq;
 import com.back.global.exception.ServiceException;
 import com.back.global.rsData.RsData;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
 @Tag(name="ApiV1MemberController", description = "API 맴버 컨트롤러")
+@SecurityRequirement(name = "bearerAuth")
 public class ApiV1MemberController {
     private final MemberService memberService;
     private final Rq rq;
