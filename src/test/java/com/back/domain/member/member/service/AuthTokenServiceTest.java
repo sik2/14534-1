@@ -65,6 +65,8 @@ public class AuthTokenServiceTest {
         System.out.println("jwt : " + jwt);
 
         assertThat(Ut.jwt.isValid(secret, jwt)).isTrue();
+        Map<String, Object> parsedPayload = Ut.jwt.payload(secret, jwt);
+        assertThat(parsedPayload).containsAllEntriesOf(claims);
     }
 
     @Test
@@ -81,6 +83,10 @@ public class AuthTokenServiceTest {
         assertThat(jwt).isNotBlank();
 
         System.out.println("jwt : " + jwt);
+
+        assertThat(Ut.jwt.isValid(secret, jwt)).isTrue();
+        Map<String, Object> parsedPayload = Ut.jwt.payload(secret, jwt);
+        assertThat(parsedPayload).containsAllEntriesOf(claims);
     }
 
     @Test
