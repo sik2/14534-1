@@ -1,5 +1,6 @@
 package com.back.domain.member.member.service;
 
+import com.back.domain.member.member.entity.Member;
 import com.back.standard.util.Ut;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -23,6 +24,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class AuthTokenServiceTest {
     @Autowired
     private AuthTokenService authTokenService;
+
+    @Autowired
+    private MemberService memberService;
 
     @Test
     @DisplayName("authTokenService가 존재한다.")
@@ -62,7 +66,7 @@ public class AuthTokenServiceTest {
     @DisplayName("Ut.jwt.toString 통해서 jwt 생성, {name= \"Paul\", age=23}")
     void t3 () {
         String secret = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
-        int expireSeconds = 1000 * 60 * 60 * 24 * 365; // 토큰 만료시간을 1년
+        int expireSeconds = 60 * 60 * 24 * 365; // 토큰 만료시간을 1년
         Map<String, Object> claims = Map.of("name", "David", "age", "20");
 
         String jwt = Ut.jwt.toString(
@@ -70,6 +74,17 @@ public class AuthTokenServiceTest {
                 expireSeconds,
                 claims
         );
+
+        assertThat(jwt).isNotBlank();
+
+        System.out.println("jwt : " + jwt);
+    }
+
+    @Test
+    @DisplayName("authTokenService.genAccessToken(member);")
+    void t4 () {
+        Member member = memberService.findByUsername("user1").get();
+        String jwt = authTokenService.genAccessToken(member);
 
         assertThat(jwt).isNotBlank();
 
