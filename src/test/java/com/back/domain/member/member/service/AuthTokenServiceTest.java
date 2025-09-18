@@ -16,7 +16,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -28,6 +29,9 @@ public class AuthTokenServiceTest {
     @Autowired
     private MemberService memberService;
 
+    String secret = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
+    int expireSeconds = 60 * 60 * 24 * 365;
+
     @Test
     @DisplayName("authTokenService가 존재한다.")
     void t1() {
@@ -37,16 +41,15 @@ public class AuthTokenServiceTest {
     @Test
     @DisplayName("jjwt 최신 방식으로 jwt 생성, {name= \"Paul\", age=23}")
     void t2 () {
-        // 서명키 (SecretKey)
-        String jwtSecretKey = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
-        byte[] keyBytes = jwtSecretKey.getBytes(StandardCharsets.UTF_8);
+
+        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         SecretKey secretKey = Keys.hmacShaKeyFor(keyBytes);
 
         // 클레임 - 사용자 정보
         Map<String, Object> claims = Map.of("name", "Paul", "age", "23");
 
         // 생성시간, 만료시간 설정
-        long expireMillis = 1000L * 60 * 60 * 24 * 365; // 토큰 만료시간을 1년
+        long expireMillis = 1000L * expireSeconds; // 토큰 만료시간을 1년
         Date issuedAt = new Date(); // 발행시간 설정
         Date expiration = new Date(issuedAt.getTime() + expireMillis); //발행 시간으로 부터 만료시간 설정
 
@@ -60,13 +63,20 @@ public class AuthTokenServiceTest {
         assertThat(jwt).isNotBlank();
 
         System.out.println("jwt : " + jwt);
+
+        Map<String, Object> parsePayload = (Map<String, Object>) Jwts
+                .parser()
+                .verifyWith(secretKey)
+                .build()
+                .parse(jwt)
+                .getPayload();
+
+        assertThat(parsePayload).containsAllEntriesOf(claims);
     }
 
     @Test
     @DisplayName("Ut.jwt.toString 통해서 jwt 생성, {name= \"Paul\", age=23}")
     void t3 () {
-        String secret = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
-        int expireSeconds = 60 * 60 * 24 * 365; // 토큰 만료시간을 1년
         Map<String, Object> claims = Map.of("name", "David", "age", "20");
 
         String jwt = Ut.jwt.toString(
