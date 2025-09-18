@@ -93,10 +93,20 @@ public class AuthTokenServiceTest {
     @DisplayName("authTokenService.genAccessToken(member);")
     void t4 () {
         Member member = memberService.findByUsername("user1").get();
-        String jwt = authTokenService.genAccessToken(member);
+        String accessToken = authTokenService.genAccessToken(member);
 
-        assertThat(jwt).isNotBlank();
+        assertThat(accessToken).isNotBlank();
 
-        System.out.println("jwt : " + jwt);
+        System.out.println("accessToken : " + accessToken);
+
+        Map<String, Object> parsedPayload = authTokenService.payload(secret, accessToken);
+
+        assertThat(parsedPayload)
+                .containsAllEntriesOf(
+                        Map.of(
+                                "id", member.getId(),
+                                "username", member.getUsername()
+                        )
+                );
     }
 }
