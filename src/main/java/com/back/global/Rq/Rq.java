@@ -61,17 +61,27 @@ public class Rq {
             if (payload != null) {
                 long id = ((Number) payload.get("id")).longValue();
                 String username = (String) payload.get("username");
-                member = new Member(id, username);
+                String nickname = (String) payload.get("nickname");
+                member = new Member(id, username, nickname);
+
+                // 토큰 유효성 검증 성공
+                isAccessTokenValid = true;
             }
-            isAccessTokenValid = true;
         }
 
+        if (member == null) {
+            member = memberService.findByApiKey(apiKey)
+                    .orElseThrow(() -> new ServiceException("401-3", "회원을 찾을 수 없습니다."));
+        }
+
+        // 토큰 존재하고, 토큰 유효성 검증 실패 했을 때
         if (isAccessTokenExists && !isAccessTokenValid) {
             // apiKey(refresh token)을 이용한 accessToken 재발급
             String actorAccessToken = memberService.genAccessToken(member);
 
-            setCookie(actorAccessToken, accessToken);
-            setHeader("Authorization", "Bearer " + apiKey + " " + accessToken);
+            setCookie("accessToken", actorAccessToken);
+            // 비교용으로 전달
+            setHeader("Authorization", actorAccessToken);
         }
 
         return member;
