@@ -33,8 +33,14 @@ public class Rq {
             if (!headerAuthorization.startsWith("Bearer ")) {
                 throw new ServiceException("401-2", "인증 정보가 올바르지 않습니다.");
             }
-            accessToken = headerAuthorization.substring("Bearer ".length()).trim();
+
+            // ["Bearer", apiKey, accessToken]
+            String[] headerAuthorizations =  headerAuthorization.split(" ", 3);
+
+            apiKey = headerAuthorizations[1];
+            accessToken = headerAuthorizations.length == 3 ? headerAuthorizations[2] : "";
         } else { // headerAuthorization 존재하지 않는다면 쿠키에서 정보가지고 오기
+            apiKey = getCookieValue("apiKey", "");
             accessToken = getCookieValue("accessToken", "");
         }
         if (accessToken.isBlank()) throw new ServiceException("401-1", "로그인 후 사용해주세요.");
@@ -43,10 +49,20 @@ public class Rq {
 
         if (payload == null) throw new ServiceException("401-4", "토큰 검증에 실패했습니다.");
 
-        String username = (String) payload.get("username");
-        // 좋은 코드가 아니다 -> DB 조회를 한다
-        Member member = memberService.findByUsername(username)
-                .orElseThrow(() ->new ServiceException("401-3", "회원을 찾을 수 없습니다."));
+        Member member = null;
+
+        // TODO: 보완 예정
+        if (payload != null) {
+            String username = (String) payload.get("username");
+            // 좋은 코드가 아니다 -> DB 조회를 한다
+            member = memberService.findByUsername(username)
+                    .orElseThrow(() ->new ServiceException("401-3", "회원을 찾을 수 없습니다."));
+        }
+
+        // DB 조회를 이용한 회원검증 - RefreshKey 역할
+        member = memberService
+                .findByApiKey(apiKey)
+                .orElseThrow((() ->new ServiceException("401-3", "회원을 찾을 수 없습니다.")));
 
         return member;
     }
