@@ -52,8 +52,10 @@ public class Rq {
         if (apiKey.isBlank()) throw new ServiceException("401-1", "로그인 후 사용해주세요.");
 
         Member member = null;
+        boolean isAccessTokenExists = !accessToken.isBlank();
+        boolean isAccessTokenValid = false;
 
-        if (!accessToken.isBlank()) {
+        if (isAccessTokenExists) {
             Map<String, Object> payload = memberService.payload(accessToken);
 
             if (payload != null) {
@@ -61,13 +63,28 @@ public class Rq {
                 String username = (String) payload.get("username");
                 member = new Member(id, username);
             }
+            isAccessTokenValid = true;
         }
-        // DB 조회를 이용한 회원검증 - RefreshKey 역할
-        member = memberService
-                .findByApiKey(apiKey)
-                .orElseThrow((() ->new ServiceException("401-3", "회원을 찾을 수 없습니다.")));
+
+        if (isAccessTokenExists && !isAccessTokenValid) {
+            // apiKey(refresh token)을 이용한 accessToken 재발급
+            String actorAccessToken = memberService.genAccessToken(member);
+
+            setCookie(actorAccessToken, accessToken);
+            setHeader("Authorization", "Bearer " + apiKey + " " + accessToken);
+        }
 
         return member;
+    }
+
+    private void setHeader(String name, String value) {
+        if (value == null) value = "";
+
+        if (value.isBlank()) {
+            req.removeAttribute(name);
+        } else {
+            resp.setHeader(name, value);
+        }
     }
 
     private String getHeader(String name, String defaultValue) {
