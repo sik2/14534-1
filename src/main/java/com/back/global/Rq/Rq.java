@@ -43,22 +43,27 @@ public class Rq {
             apiKey = getCookieValue("apiKey", "");
             accessToken = getCookieValue("accessToken", "");
         }
-        if (accessToken.isBlank()) throw new ServiceException("401-1", "로그인 후 사용해주세요.");
 
-        Map<String, Object> payload = memberService.payload(accessToken);
+        /*
+            검증
+           1. accessToken, apiKey(refreshToken)가지고 있는지 검증
+        */
 
-        if (payload == null) throw new ServiceException("401-4", "토큰 검증에 실패했습니다.");
+        if (apiKey.isBlank()) throw new ServiceException("401-1", "로그인 후 사용해주세요.");
 
         Member member = null;
 
-        // TODO: 보완 예정
-        if (payload != null) {
-            String username = (String) payload.get("username");
-            // 좋은 코드가 아니다 -> DB 조회를 한다
-            member = memberService.findByUsername(username)
-                    .orElseThrow(() ->new ServiceException("401-3", "회원을 찾을 수 없습니다."));
-        }
+        if (!accessToken.isBlank()) {
+            Map<String, Object> payload = memberService.payload(accessToken);
 
+            // TODO: 보완 예정
+            if (payload != null) {
+                String username = (String) payload.get("username");
+                // 좋은 코드가 아니다 -> DB 조회를 한다
+                member = memberService.findByUsername(username)
+                        .orElseThrow(() ->new ServiceException("401-3", "회원을 찾을 수 없습니다."));
+            }
+        }
         // DB 조회를 이용한 회원검증 - RefreshKey 역할
         member = memberService
                 .findByApiKey(apiKey)
