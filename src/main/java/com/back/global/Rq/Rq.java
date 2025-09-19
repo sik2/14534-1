@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -25,24 +26,27 @@ public class Rq {
         String headerAuthorization = getHeader("Authorization", "");
 
         String apiKey;
+        String accessToken;
 
         // headerAuthorization이 존재한다면
         if (!headerAuthorization.isBlank()) {
             if (!headerAuthorization.startsWith("Bearer ")) {
                 throw new ServiceException("401-2", "인증 정보가 올바르지 않습니다.");
             }
-
-            apiKey = headerAuthorization.substring("Bearer ".length()).trim();
-        } else { // headerAuthorization 존재하지 않는다면 쿠키에서 apiKey를 가지고 오기
-            apiKey = getCookieValue("apiKey", "");
+            accessToken = headerAuthorization.substring("Bearer ".length()).trim();
+        } else { // headerAuthorization 존재하지 않는다면 쿠키에서 정보가지고 오기
+            accessToken = getCookieValue("accessToken", "");
         }
+        if (accessToken.isBlank()) throw new ServiceException("401-1", "로그인 후 사용해주세요.");
 
-        if (apiKey.isBlank())  throw new ServiceException("401-1", "로그인 후 사용해주세요.");
+        Map<String, Object> payload = memberService.payload(accessToken);
 
+        if (payload == null) throw new ServiceException("401-4", "토큰 검증에 실패했습니다.");
 
-        Member member = memberService
-                .findByApiKey(apiKey)
-                .orElseThrow(() -> new ServiceException("401-3", "회원을 찾을 수 없습니다."));
+        String username = (String) payload.get("username");
+        // 좋은 코드가 아니다 -> DB 조회를 한다
+        Member member = memberService.findByUsername(username)
+                .orElseThrow(() ->new ServiceException("401-3", "회원을 찾을 수 없습니다."));
 
         return member;
     }
