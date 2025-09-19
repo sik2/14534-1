@@ -56,12 +56,10 @@ public class Rq {
         if (!accessToken.isBlank()) {
             Map<String, Object> payload = memberService.payload(accessToken);
 
-            // TODO: 보완 예정
             if (payload != null) {
+                long id = ((Number) payload.get("id")).longValue();
                 String username = (String) payload.get("username");
-                // 좋은 코드가 아니다 -> DB 조회를 한다
-                member = memberService.findByUsername(username)
-                        .orElseThrow(() ->new ServiceException("401-3", "회원을 찾을 수 없습니다."));
+                member = new Member(id, username);
             }
         }
         // DB 조회를 이용한 회원검증 - RefreshKey 역할
