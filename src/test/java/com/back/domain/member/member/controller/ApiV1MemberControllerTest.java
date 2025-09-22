@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class MemberControllerTest {
+public class ApiV1MemberControllerTest {
 
     @Autowired
     private MockMvc mvc; // MockMvc를 주입받습니다.
