@@ -4,6 +4,7 @@ import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
 import com.back.global.Rq.Rq;
 import com.back.global.exception.ServiceException;
+import com.back.global.rsData.RsData;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +27,25 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         logger.debug("CustomAuthenticationFilter: " + request.getRequestURI());
 
+
+        try {
+            work(request, response, filterChain);
+        } catch (ServiceException e) {
+            RsData<Void> rsData = e.getRsData();
+            response.setContentType("application/json");
+            response.setStatus(rsData.statusCode());
+            response.getWriter().write("""
+                        {
+                            "resultCode": "%s",
+                            "msg": "%s"
+                        }
+                    """.formatted(rsData.resultCode(), rsData.msg()));
+        } catch(Exception e) {
+            throw e;
+        }
+    }
+
+    private void work(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // API 요청 아니라면 패스
         if (!request.getRequestURI().startsWith("/api/")) {
             filterChain.doFilter(request, response);
@@ -100,8 +120,6 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             // 비교용으로 전달
             rq.setHeader("Authorization", actorAccessToken);
         }
-
-
 
         filterChain.doFilter(request,response);
     }
