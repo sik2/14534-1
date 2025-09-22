@@ -1,5 +1,7 @@
 package com.back.global.security;
 
+import com.back.domain.member.member.entity.Member;
+import com.back.domain.member.member.service.MemberService;
 import com.back.global.Rq.Rq;
 import com.back.global.exception.ServiceException;
 import jakarta.servlet.FilterChain;
@@ -12,11 +14,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class CustomAuthenticationFilter extends OncePerRequestFilter {
     private final Rq rq;
+    private final MemberService memberService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -63,6 +67,40 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+
+        Member member = null;
+        boolean isAccessTokenExists = !accessToken.isBlank();
+        boolean isAccessTokenValid = false;
+
+        if (isAccessTokenExists) {
+            Map<String, Object> payload = memberService.payload(accessToken);
+
+            if (payload != null) {
+                long id = ((Number) payload.get("id")).longValue();
+                String username = (String) payload.get("username");
+                String nickname = (String) payload.get("nickname");
+                member = new Member(id, username, nickname);
+
+                // 토큰 유효성 검증 성공
+                isAccessTokenValid = true;
+            }
+        }
+
+        if (member == null) {
+            member = memberService.findByApiKey(apiKey)
+                    .orElseThrow(() -> new ServiceException("401-3", "회원을 찾을 수 없습니다."));
+        }
+
+        // 토큰 존재하고, 토큰 유효성 검증 실패 했을 때
+        if (isAccessTokenExists && !isAccessTokenValid) {
+            // apiKey(refresh token)을 이용한 accessToken 재발급
+            String actorAccessToken = memberService.genAccessToken(member);
+
+            rq.setCookie("accessToken", actorAccessToken);
+            // 비교용으로 전달
+            rq.setHeader("Authorization", actorAccessToken);
+        }
+
 
 
         filterChain.doFilter(request,response);

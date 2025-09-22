@@ -87,7 +87,7 @@ public class Rq {
         return member;
     }
 
-    private void setHeader(String name, String value) {
+    public void setHeader(String name, String value) {
         if (value == null) value = "";
 
         if (value.isBlank()) {
