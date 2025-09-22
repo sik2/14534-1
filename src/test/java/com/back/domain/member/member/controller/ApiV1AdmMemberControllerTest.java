@@ -35,15 +35,17 @@ public class ApiV1AdmMemberControllerTest {
     @Test
     @DisplayName("회원 다건조회")
     void t1() throws Exception {
+        Member actor = memberService.findByUsername("admin").get();
+        String actorApiKey = actor.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/adm/members")
+                            .header("Authorization", "Bearer " + actorApiKey)
                 )
                 .andDo(print());
 
         List<Member> members = memberService.findAll();
-
 
         // 200 Ok 상태코드 검증
         resultActions
@@ -67,12 +69,16 @@ public class ApiV1AdmMemberControllerTest {
     @Test
     @DisplayName("회원 단건조회")
     void t2() throws Exception {
+        Member actor = memberService.findByUsername("admin").get();
+        String actorApiKey = actor.getApiKey();
+
         long id = 1;
 
         //요청을 보냅니다.
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/adm/members/" + id)
+                                .header("Authorization", "Bearer " + actorApiKey)
                 )
                 .andDo(print()); // 응답을 출력합니다.
 
@@ -85,5 +91,28 @@ public class ApiV1AdmMemberControllerTest {
                 .andExpect(jsonPath("$.modifyDate").value(Matchers.startsWith(member.getModifyDate().toString().substring(0, 20))))
                 .andExpect(jsonPath("$.nickname").value(member.getNickname()))
                 .andExpect(jsonPath("$.username").value(member.getUsername()));
+    }
+
+    @Test
+    @DisplayName("다건조회, without permission")
+    void t3() throws Exception {
+        Member actor = memberService.findByUsername("user1").get();
+        String actorApiKey = actor.getApiKey();
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/adm/members")
+                                .header("Authorization", "Bearer " + actorApiKey)
+                )
+                .andDo(print());
+
+        // 200 Ok 상태코드 검증
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ApiV1AdmMemberController.class))
+                .andExpect(handler().methodName("getItems"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.resultCode").value("403-1"))
+                .andExpect(jsonPath("$.msg").value("권한이 없습니다."));
     }
 }
