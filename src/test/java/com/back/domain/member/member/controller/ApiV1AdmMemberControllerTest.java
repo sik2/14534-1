@@ -63,4 +63,27 @@ public class ApiV1AdmMemberControllerTest {
                     .andExpect(jsonPath("$[%d].username".formatted(i)).value(member.getUsername()));
         }
     }
+
+    @Test
+    @DisplayName("회원 단건조회")
+    void t2() throws Exception {
+        long id = 1;
+
+        //요청을 보냅니다.
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/adm/members/" + id)
+                )
+                .andDo(print()); // 응답을 출력합니다.
+
+        Member member = memberService.findById(id).get();
+
+        // 200 Ok 상태코드 검증
+        resultActions
+                .andExpect(jsonPath("$.id").value(member.getId()))
+                .andExpect(jsonPath("$.createDate").value(Matchers.startsWith(member.getCreateDate().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.modifyDate").value(Matchers.startsWith(member.getModifyDate().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.nickname").value(member.getNickname()))
+                .andExpect(jsonPath("$.username").value(member.getUsername()));
+    }
 }
