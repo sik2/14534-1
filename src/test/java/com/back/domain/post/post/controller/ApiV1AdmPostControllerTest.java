@@ -35,7 +35,7 @@ public class ApiV1AdmPostControllerTest {
 
         ResultActions resultActions = mvc
                 .perform(
-                        get("/api/v1/posts/count")
+                        get("/api/v1/adm/posts/count")
                 )
                 .andDo(print());
 
