@@ -106,9 +106,7 @@ public class ApiV1AdmMemberControllerTest {
                 )
                 .andDo(print());
 
-        // 200 Ok 상태코드 검증
         resultActions
-                .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ApiV1AdmMemberController.class))
                 .andExpect(handler().methodName("getItems"))
                 .andExpect(status().isForbidden())
