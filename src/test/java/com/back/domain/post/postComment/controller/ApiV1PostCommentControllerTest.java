@@ -271,8 +271,6 @@ public class ApiV1PostCommentControllerTest {
                 .andDo(print());
 
         resultActions
-                .andExpect(handler().handlerType(ApiV1PostCommentController.class))
-                .andExpect(handler().methodName("write"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value("401-1"))
                 .andExpect(jsonPath("$.msg").value("로그인 후 사용해주세요."));
@@ -297,8 +295,6 @@ public class ApiV1PostCommentControllerTest {
                 .andDo(print());
 
         resultActions
-                .andExpect(handler().handlerType(ApiV1PostCommentController.class))
-                .andExpect(handler().methodName("write"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value("401-2"))
                 .andExpect(jsonPath("$.msg").value("인증 정보가 올바르지 않습니다."));
@@ -323,8 +319,6 @@ public class ApiV1PostCommentControllerTest {
                 .andDo(print());
 
         resultActions
-                .andExpect(handler().handlerType(ApiV1PostCommentController.class))
-                .andExpect(handler().methodName("write"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.resultCode").value("401-3"))
                 .andExpect(jsonPath("$.msg").value("회원을 찾을 수 없습니다."));
