@@ -9,10 +9,12 @@ import com.back.domain.member.member.service.MemberService;
 import com.back.global.Rq.Rq;
 import com.back.global.exception.ServiceException;
 import com.back.global.rsData.RsData;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,7 +26,9 @@ public class ApiV1MemberController {
     private final MemberService memberService;
     private final Rq rq;
 
+    @Transactional
     @PostMapping
+    @Operation(summary = "회원가입")
     public RsData<MemberDto> join(@Valid @RequestBody MemberJoinReqBody reqBody) {
         Member member = memberService.join(reqBody.username(), reqBody.password(), reqBody.nickname());
 
@@ -35,7 +39,9 @@ public class ApiV1MemberController {
         );
     }
 
+    @Transactional
     @PostMapping("/login")
+    @Operation(summary = "로그인")
     public RsData<MemberLoginResBody> login(
             @Valid @RequestBody MemberLoginReqBody reqBody
     ) {
@@ -64,7 +70,9 @@ public class ApiV1MemberController {
 
     }
 
+    @Transactional(readOnly = true)
     @GetMapping("/me")
+    @Operation(summary = "내 정보")
     public RsData<MemberDto> me() {
         Member actor = rq.getActor();
         // 실시간성을 보장하기위해 DB 조회
@@ -77,7 +85,9 @@ public class ApiV1MemberController {
         );
     }
 
+    @Transactional
     @DeleteMapping("/logout")
+    @Operation(summary = "로그아웃")
     public RsData<Void> logout() {
 
         rq.deleteCookie("apiKey");
