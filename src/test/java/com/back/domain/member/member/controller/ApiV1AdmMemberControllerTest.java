@@ -66,17 +66,14 @@ public class ApiV1AdmMemberControllerTest {
 
     @Test
     @DisplayName("회원 단건조회")
+    @WithUserDetails("admin")
     void t2() throws Exception {
-        Member actor = memberService.findByUsername("admin").get();
-        String actorApiKey = actor.getApiKey();
-
         long id = 1;
 
         //요청을 보냅니다.
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/adm/members/" + id)
-                                .header("Authorization", "Bearer " + actorApiKey)
                 )
                 .andDo(print()); // 응답을 출력합니다.
 
@@ -93,14 +90,11 @@ public class ApiV1AdmMemberControllerTest {
 
     @Test
     @DisplayName("다건조회, without permission")
+    @WithUserDetails("user1")
     void t3() throws Exception {
-        Member actor = memberService.findByUsername("user1").get();
-        String actorApiKey = actor.getApiKey();
-
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/adm/members")
-                                .header("Authorization", "Bearer " + actorApiKey)
                 )
                 .andDo(print());
 
@@ -112,16 +106,13 @@ public class ApiV1AdmMemberControllerTest {
 
     @Test
     @DisplayName("단건조회, without permission")
+    @WithUserDetails("user1")
     void t4() throws Exception {
         int id = 1;
-
-        Member actor = memberService.findByUsername("user1").get();
-        String actorApiKey = actor.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/adm/members/" + id)
-                                .header("Authorization", "Bearer " + actorApiKey)
                 )
                 .andDo(print());
 
