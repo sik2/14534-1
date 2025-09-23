@@ -227,4 +227,20 @@ public class ApiV1MemberControllerTest {
                 }
         );
     }
+
+    @Test
+    @DisplayName("Authorization 헤더 Bearer 형식이 아닐 때 오류")
+    void t7 () throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/members/me")
+                                .header("Authorization", "key")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("401-2"))
+                .andExpect(jsonPath("$.msg").value("인증 정보가 올바르지 않습니다."));
+    }
 }
