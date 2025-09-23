@@ -6,7 +6,12 @@ import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @ToString
@@ -43,5 +48,22 @@ public class Member extends BaseEntity {
         if ("admin".equals(username)) return true;
 
         return false;
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+         return getAuthoritiesStringList()
+                 .stream()
+                 .map(SimpleGrantedAuthority::new)
+                 .toList();
+    }
+
+    public List<String> getAuthoritiesStringList() {
+        List<String> authorities = new ArrayList<>();
+
+        if (isAdmin()) {
+            authorities.add("ROLE_ADMIN");
+        }
+
+        return authorities;
     }
 }
