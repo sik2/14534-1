@@ -35,6 +35,21 @@ public class SecurityConfig {
                 .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(
                         exceptionHandling -> exceptionHandling
+                                .authenticationEntryPoint(
+                                        (request, response, authException) -> {
+                                            response.setContentType("application/json;charset=UTF-8");
+
+                                            response.setStatus(401);
+                                            response.getWriter().write(
+                                                    """
+                                                            {
+                                                                 "resultCode": "401-1",
+                                                                 "msg": "로그인 후 사용해주세요."
+                                                            }
+                                                            """
+                                            );
+                                        }
+                                )
                                 .accessDeniedHandler(
                                         (request, response, accessDeniedException) -> {
                                             response.setContentType("application/json;charset=UTF-8");
@@ -50,9 +65,7 @@ public class SecurityConfig {
                                             );
                                         }
                                 )
-                )
-        ;
-
+                );
         return http.build();
     }
 }
