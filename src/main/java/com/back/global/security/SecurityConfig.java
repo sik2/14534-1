@@ -1,7 +1,7 @@
 package com.back.global.security;
 
 import com.back.global.rsData.RsData;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.back.standard.util.Ut;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CustomAuthenticationFilter customAuthenticationFilter;
-    private final ObjectMapper objectMapper;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -59,7 +58,7 @@ public class SecurityConfig {
 
                                             response.setStatus(401);
                                             response.getWriter().write(
-                                                    objectMapper.writeValueAsString(
+                                                    Ut.json.toString(
                                                             new RsData<Void>(
                                                                     "401-1",
                                                                     "로그인 후 이용해주세요."
@@ -74,7 +73,7 @@ public class SecurityConfig {
 
                                             response.setStatus(403);
                                             response.getWriter().write(
-                                                    objectMapper.writeValueAsString(
+                                                    Ut.json.toString(
                                                             new RsData<Void>(
                                                                     "403-1",
                                                                     "권한이 없습니다."

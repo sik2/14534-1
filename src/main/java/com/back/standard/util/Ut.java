@@ -1,6 +1,7 @@
 package com.back.standard.util;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ClaimsBuilder;
 import io.jsonwebtoken.Jwts;
@@ -64,6 +65,22 @@ public class Ut {
                         .getPayload();
             } catch (Exception e) {
                 return null;
+            }
+        }
+    }
+
+    public static class json {
+        public static ObjectMapper objectMapper;
+
+        public static String toString(Object object) {
+                return toString(object, null);
+        }
+
+        public static String toString(Object object, String defaultValue) {
+            try {
+                return objectMapper.writeValueAsString(object);
+            } catch (Exception e) {
+                return defaultValue;
             }
         }
     }
