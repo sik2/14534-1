@@ -20,6 +20,7 @@ public class SecurityConfig {
                         auth -> auth
                                 .requestMatchers("favicon.ico").permitAll()
                                 .requestMatchers("/h2-console/**").permitAll()
+                                .requestMatchers("/api/*/adm/*").hasRole("ADMIN") // 관리자 권한 체크(선언적으로 인가 처리)
                                 .requestMatchers("/**").permitAll()
                                 .anyRequest().authenticated()
                 )
